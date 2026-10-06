@@ -49,7 +49,7 @@ export async function getMessages(): Promise<ContactMessage[]> {
 }
 
 /**
- * Save a new message atomically to the database.
+ * Save a new message to the database.
  */
 export async function saveMessage(data: {
   name: string;
@@ -73,10 +73,8 @@ export async function saveMessage(data: {
 
   messages.unshift(newMessage);
 
-  // Atomic write to prevent file corruption
-  const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
-  await fs.writeFile(tempFile, JSON.stringify(messages, null, 2), "utf-8");
-  await fs.rename(tempFile, DB_FILE);
+  // Write directly to file (compatible with Windows NTFS file locking)
+  await fs.writeFile(DB_FILE, JSON.stringify(messages, null, 2), "utf-8");
 
   return newMessage;
 }
@@ -93,10 +91,7 @@ export async function deleteMessage(id: string): Promise<boolean> {
     return false;
   }
 
-  const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
-  await fs.writeFile(tempFile, JSON.stringify(filtered, null, 2), "utf-8");
-  await fs.rename(tempFile, DB_FILE);
-
+  await fs.writeFile(DB_FILE, JSON.stringify(filtered, null, 2), "utf-8");
   return true;
 }
 
@@ -110,10 +105,8 @@ export async function markAsRead(id: string): Promise<boolean> {
 
   if (!message) return false;
 
-  message.status = "read";
-  const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
-  await fs.writeFile(tempFile, JSON.stringify(messages, null, 2), "utf-8");
-  await fs.rename(tempFile, DB_FILE);
+  message.status = message.status === "unread" ? "read" : "unread";
+  await fs.writeFile(DB_FILE, JSON.stringify(messages, null, 2), "utf-8");
 
   return true;
 }

@@ -43,14 +43,23 @@ export async function POST(req: NextRequest) {
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "localhost";
 
     // 1. Save to Database (Stored for Inbox at /inbox)
-    const savedMessage = await saveMessage({
-      name: name.trim(),
-      email: email.trim(),
-      message: message.trim(),
-      ip,
-    });
+    let savedMessage;
+    try {
+      savedMessage = await saveMessage({
+        name: name.trim(),
+        email: email.trim(),
+        message: message.trim(),
+        ip,
+      });
+    } catch (dbErr) {
+      console.error("Database storage error:", dbErr);
+      return NextResponse.json(
+        { success: false, error: "Failed to store message. Please try again." },
+        { status: 500 }
+      );
+    }
 
-    // 2. Email Delivery Notification
+    // 2. Email Delivery Notification (Non-blocking safe execution)
     let emailSent = false;
     const recipientEmail = process.env.RECIPIENT_EMAIL || "muhammadkamran0774@gmail.com";
     const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
@@ -93,7 +102,7 @@ export async function POST(req: NextRequest) {
         });
         emailSent = true;
       } catch (smtpErr) {
-        console.warn("Direct SMTP notification encountered an issue, falling back to webhook relay:", smtpErr);
+        console.warn("Direct SMTP notification encountered an issue:", smtpErr);
       }
     }
 
@@ -101,6 +110,9 @@ export async function POST(req: NextRequest) {
     if (!emailSent) {
       try {
         const origin = req.headers.get("origin") || req.headers.get("referer") || "http://localhost:3000";
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout
+
         const formSubmitRes = await fetch(`https://formsubmit.co/ajax/${recipientEmail}`, {
           method: "POST",
           headers: {
@@ -115,13 +127,16 @@ export async function POST(req: NextRequest) {
             _subject: `New Portfolio Message from ${name.trim()}`,
             _template: "table",
           }),
+          signal: controller.signal,
         });
+        clearTimeout(timeoutId);
+
         const formSubmitData = await formSubmitRes.json();
         if (formSubmitData.success === "true" || formSubmitData.success === true) {
           emailSent = true;
         }
       } catch (fErr) {
-        console.warn("Webhook relay notification info:", fErr);
+        console.warn("Webhook relay notification note:", fErr);
       }
     }
 
