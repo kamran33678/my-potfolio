@@ -334,14 +334,44 @@ export default function InboxPage() {
                     {msg.message}
                   </div>
 
-                  <div className="mt-4 flex items-center justify-end gap-2">
+                  <div className="mt-4 flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-white/5">
+                    {/* Copy Email */}
+                    <button
+                      onClick={() => handleCopyEmail(msg.email, msg.id)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white/5 text-zinc-300 hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+                    >
+                      {copiedId === msg.id ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                          <span className="text-amber-400">Email Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy Email</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Default Mail App (mailto) */}
                     <a
-                      href={`mailto:${msg.email}?subject=Re:%20Inquiry%20from%20Muhammad%20Kamran's%20Portfolio`}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-white text-black hover:bg-amber-400 transition-colors"
+                      href={`mailto:${msg.email}?subject=${encodeURIComponent(`Re: Inquiry from Muhammad Kamran's Portfolio`)}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-zinc-900 text-zinc-300 hover:text-white border border-white/10 hover:border-white/20 transition-colors"
+                      title="Open in Windows Mail / Outlook"
                     >
                       <Mail className="w-3.5 h-3.5" />
-                      <span>Reply via Email</span>
-                      <ExternalLink className="w-3 h-3 ml-0.5" />
+                      <span>Mail App</span>
+                    </a>
+
+                    {/* Direct Gmail Web (Guaranteed to open Gmail compose tab) */}
+                    <a
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(msg.email)}&su=${encodeURIComponent(`Re: Portfolio Inquiry - ${msg.name}`)}&body=${encodeURIComponent(`Hi ${msg.name},\n\nThank you for reaching out via my portfolio.\n\n---\nRegarding your message:\n"${msg.message}"\n---\n\nBest regards,\nMuhammad Kamran\nModern Web Developer`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-amber-400 text-black hover:bg-amber-300 transition-colors shadow-md shadow-amber-400/10 cursor-pointer"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Reply via Gmail Web</span>
                     </a>
                   </div>
                 </div>
