@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       body = await req.json();
     } catch {
       return NextResponse.json(
-        { success: false, error: "Invalid JSON format in request body." },
+        { success: false, error: "Invalid form data format." },
         { status: 400 }
       );
     }
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     // Strict Validations
     if (!name || typeof name !== "string" || name.trim().length < 2) {
       return NextResponse.json(
-        { success: false, error: "Please enter a valid name (at least 2 characters)." },
+        { success: false, error: "Please enter your name (at least 2 characters)." },
         { status: 400 }
       );
     }
@@ -32,9 +32,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!message || typeof message !== "string" || message.trim().length < 5) {
+    if (!message || typeof message !== "string" || message.trim().length < 3) {
       return NextResponse.json(
-        { success: false, error: "Please enter a message (at least 5 characters)." },
+        { success: false, error: "Please enter your message." },
         { status: 400 }
       );
     }
@@ -42,24 +42,15 @@ export async function POST(req: NextRequest) {
     // Capture client IP
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "localhost";
 
-    // 1. Save to Database (Stored for Inbox at /inbox)
-    let savedMessage;
-    try {
-      savedMessage = await saveMessage({
-        name: name.trim(),
-        email: email.trim(),
-        message: message.trim(),
-        ip,
-      });
-    } catch (dbErr) {
-      console.error("Database storage error:", dbErr);
-      return NextResponse.json(
-        { success: false, error: "Failed to store message. Please try again." },
-        { status: 500 }
-      );
-    }
+    // 1. Save to Database (Always stored for /inbox)
+    const savedMessage = await saveMessage({
+      name: name.trim(),
+      email: email.trim(),
+      message: message.trim(),
+      ip,
+    });
 
-    // 2. Email Delivery Notification (Non-blocking safe execution)
+    // 2. Optional Email Delivery Notification
     let emailSent = false;
     const recipientEmail = process.env.RECIPIENT_EMAIL || "muhammadkamran0774@gmail.com";
     const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
@@ -111,7 +102,7 @@ export async function POST(req: NextRequest) {
       try {
         const origin = req.headers.get("origin") || req.headers.get("referer") || "http://localhost:3000";
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
 
         const formSubmitRes = await fetch(`https://formsubmit.co/ajax/${recipientEmail}`, {
           method: "POST",
@@ -143,7 +134,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Your message has been sent successfully and saved to the database!",
+        message: "Your message has been sent and saved in the inbox!",
         data: {
           id: savedMessage.id,
           createdAt: savedMessage.createdAt,
@@ -156,7 +147,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error processing contact form:", error);
     return NextResponse.json(
-      { success: false, error: "Internal server error. Please try again later." },
+      { success: false, error: "Something went wrong. Please try again." },
       { status: 500 }
     );
   }

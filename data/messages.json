@@ -1,29 +1,20 @@
 [
   {
-    "id": "msg_1791271172676_zazl3",
-    "name": "Hamza Tariq",
-    "email": "hamza@example.com",
-    "message": "Hi Muhammad Kamran, checking the fixed contact backend!",
-    "createdAt": "2026-10-06T07:19:32.676Z",
+    "id": "msg_1791271628766_7xwvh",
+    "name": "Usman Ali",
+    "email": "usman@gmail.com",
+    "message": "Hello Muhammad Kamran, testing message submission and inbox storage!",
+    "createdAt": "2026-10-06T07:27:08.766Z",
     "status": "unread",
     "ip": "::1"
   },
   {
-    "id": "msg_1791267808882_1hyu5",
-    "name": "Ahmad Khan",
-    "email": "ahmad@example.com",
-    "message": "Hello Muhammad Kamran, testing the live backend submission!",
-    "createdAt": "2026-10-06T06:23:28.882Z",
-    "status": "unread",
-    "ip": "::1"
-  },
-  {
-    "id": "msg_1791147631403_aonbm",
+    "id": "msg_demo_1",
     "name": "Zeeshan Ali",
     "email": "zeeshan@client.com",
-    "message": "Hello Kamran, I checked your frontend portfolio and would like to discuss building a modern web application.",
-    "createdAt": "2026-10-04T21:00:31.403Z",
+    "message": "Hello Kamran, I checked your portfolio and would like to discuss a modern web project.",
+    "createdAt": "2026-10-06T07:27:08.764Z",
     "status": "unread",
-    "ip": "::1"
+    "ip": "127.0.0.1"
   }
 ]

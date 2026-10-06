@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Mail,
   MapPin,
@@ -11,6 +12,7 @@ import {
   MessageCircle,
   Loader2,
   AlertCircle,
+  Inbox,
 } from "lucide-react";
 
 export default function Contact() {
@@ -223,7 +225,7 @@ export default function Contact() {
           <div className="theme-card p-6 sm:p-8 rounded-3xl">
             <h3 className="text-xl font-bold text-white mb-1">Send a Direct Message</h3>
             <p className="text-xs sm:text-sm text-zinc-400 mb-6">
-              Messages are processed by the backend and saved directly to the database.
+              Messages are saved directly into your message inbox and delivered via email.
             </p>
 
             {errorMsg && (
@@ -240,12 +242,20 @@ export default function Contact() {
                 </div>
                 <h4 className="text-lg font-bold text-white">Message Delivered &amp; Saved!</h4>
                 <p className="text-xs text-zinc-300 mt-2 max-w-sm mx-auto leading-relaxed">
-                  Thank you for reaching out. Your message has been saved to the database and sent to Muhammad Kamran.
+                  Thank you for reaching out! Your message is safely stored in the Inbox and dispatched to Muhammad Kamran.
                 </p>
-                <div className="mt-6">
+                <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link
+                    href="/inbox"
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-full text-xs font-bold text-black btn-gold flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <Inbox className="w-3.5 h-3.5 text-black" />
+                    <span>Open Inbox to View Message</span>
+                  </Link>
+
                   <button
                     onClick={() => setSubmitted(false)}
-                    className="px-6 py-2.5 rounded-full text-xs font-bold text-black btn-gold cursor-pointer"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-full text-xs font-medium text-zinc-300 bg-zinc-900 border border-white/10 hover:border-amber-400/40 hover:text-white transition-colors cursor-pointer"
                   >
                     Send Another Message
                   </button>
